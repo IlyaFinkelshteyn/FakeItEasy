@@ -5,7 +5,7 @@ namespace FakeItEasy.IntegrationTests
     using FluentAssertions;
     using Xunit;
 
-    public class FakingClassesTests
+    public class FakingClassesTests: MarshalByRefObject
     {
         [Fact]
         public void Should_be_able_to_get_a_fake_value_of_uri_type()
@@ -54,7 +54,13 @@ namespace FakeItEasy.IntegrationTests
             deserializedPerson.Name.Should().Be("Eric Cartman");
         }
 
-#if FEATURE_BINARY_SERIALIZATION
+        [PartialTrustFact]
+        public void Failing()
+        {
+            A.Fake<Person>();
+        }
+
+        #if FEATURE_BINARY_SERIALIZATION
         [Serializable]
 #endif
         public class Person

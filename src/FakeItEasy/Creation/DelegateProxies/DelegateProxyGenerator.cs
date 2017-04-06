@@ -5,6 +5,7 @@ namespace FakeItEasy.Creation.DelegateProxies
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using System.Security;
     using FakeItEasy.Configuration;
     using FakeItEasy.Core;
 

@@ -6,6 +6,7 @@ namespace FakeItEasy.Creation.CastleDynamicProxy
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using System.Security;
     using Castle.DynamicProxy;
     using FakeItEasy.Core;
 
@@ -21,6 +22,7 @@ namespace FakeItEasy.Creation.CastleDynamicProxy
             this.interceptionValidator = interceptionValidator;
         }
 
+        [SecuritySafeCritical]
         public ProxyGeneratorResult GenerateProxy(
             Type typeOfProxy,
             IEnumerable<Type> additionalInterfacesToImplement,

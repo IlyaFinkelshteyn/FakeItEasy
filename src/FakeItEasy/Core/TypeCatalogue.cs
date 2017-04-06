@@ -85,15 +85,23 @@ namespace FakeItEasy.Core
             var loadedAssembliesReferencingFakeItEasy = loadedAssemblies.Where(assembly => assembly.ReferencesFakeItEasy());
 
             // Find the paths of already loaded assemblies so we don't double scan them.
-            var loadedAssemblyFiles = new HashSet<string>(
-                loadedAssemblies
+            HashSet<string> loadedAssemblyFiles;
+            try
+            {
+                loadedAssemblyFiles = new HashSet<string>(
+                    loadedAssemblies
 #if FEATURE_REFLECTION_GETASSEMBLIES
-                    // Exclude the ReflectionOnly assemblies because we may fully load them later.
-                    .Where(a => !a.ReflectionOnly)
+                        // Exclude the ReflectionOnly assemblies because we may fully load them later.
+                        .Where(a => !a.ReflectionOnly)
 #endif
-                    .Where(a => !a.IsDynamic)
-                    .Select(a => a.Location),
-                StringComparer.OrdinalIgnoreCase);
+                        .Where(a => !a.IsDynamic)
+                        .Select(a => a.Location),
+                    StringComparer.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                loadedAssemblyFiles = new HashSet<string>();
+            }
 
             // Skip assemblies that have already been loaded.
             // This optimization can be fooled by test runners that make shadow copies of the assemblies but it's a start.

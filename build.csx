@@ -33,9 +33,9 @@ var integrationTests = new []
     "tests/FakeItEasy.IntegrationTests.VB/bin/Release/FakeItEasy.IntegrationTests.VB.dll"
 };
 
-var netstdIntegrationTestDirectories = new []
+var netstdIntegrationTestDirectories = new string[]
 {
-    "tests/FakeItEasy.IntegrationTests.netstd"
+//    "tests/FakeItEasy.IntegrationTests.netstd"
 };
 
 var specs = new []

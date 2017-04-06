@@ -107,9 +107,16 @@
     <Compile Include="AssertConfigurationExtensionsTests.cs" />
     <Compile Include="TestHelpers\BinarySerializationHelper.cs" />
     <Compile Include="TestHelpers\FakeMethodHelper.cs" />
+    <Compile Include="TestHelpers\PartialTrustFactAttribute.cs" />
     <Compile Include="TestHelpers\StringEnumerableExtensions.cs" />
     <Compile Include="TestHelpers\TypeExtensions.cs" />
     <Compile Include="TestHelpers\UsingCultureAttribute.cs" />
+    <Compile Include="TestHelpers\XunitExtensions\PartialTrustFactDiscoverer.cs" />
+    <Compile Include="TestHelpers\XunitExtensions\PartialTrustSandbox.cs" />
+    <Compile Include="TestHelpers\XunitExtensions\PartialTrustTestCase.cs" />
+    <Compile Include="TestHelpers\XunitExtensions\PartialTrustTestCaseRunner.cs" />
+    <Compile Include="TestHelpers\XunitExtensions\PartialTrustTestInvoker.cs" />
+    <Compile Include="TestHelpers\XunitExtensions\PartialTrustTestRunner.cs" />
     <Compile Include="TypeExtensionsTests.cs" />
     <Compile Include="WhereConfigurationExtensionsTests.cs" />
     <Compile Include="FakeOptionsExtensionsTests.cs" />
