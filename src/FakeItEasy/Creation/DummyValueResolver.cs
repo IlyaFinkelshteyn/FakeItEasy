@@ -29,10 +29,10 @@ namespace FakeItEasy.Creation
             this.strategyCache = new ConcurrentDictionary<Type, ResolveStrategy>();
             this.fakeObjectCreator = fakeObjectCreator;
 
-            this. resolveFromDummyFactoryStrategy = new ResolveFromDummyFactoryStrategy(dummyFactory);
-            resolveByCreatingTaskStrategy = new ResolveByCreatingTaskStrategy(this);
-            resolveByCreatingLazyStrategy = new ResolveByCreatingLazyStrategy(this);
-            resolveByActivatingValueTypeStrategy = new ResolveByActivatingValueTypeStrategy();
+            this.resolveFromDummyFactoryStrategy = new ResolveFromDummyFactoryStrategy(dummyFactory);
+            this.resolveByCreatingTaskStrategy = new ResolveByCreatingTaskStrategy(this);
+            this.resolveByCreatingLazyStrategy = new ResolveByCreatingLazyStrategy(this);
+            this.resolveByActivatingValueTypeStrategy = new ResolveByActivatingValueTypeStrategy();
         }
 
         public bool TryResolveDummyValue(DummyCreationSession session, Type typeOfDummy, out object result)
@@ -52,14 +52,18 @@ namespace FakeItEasy.Creation
             return false;
         }
 
-        private IEnumerable<ResolveStrategy> GetAllResolveStrategies()
+        private IEnumerable<ResolveStrategy> GetAllResolveStrategies(Type typeOfDummy)
         {
             yield return resolveFromDummyFactoryStrategy;
             yield return resolveByCreatingTaskStrategy;
             yield return resolveByCreatingLazyStrategy;
             yield return new ResolveByCreatingFakeStrategy(this.fakeObjectCreator, this);
             yield return resolveByActivatingValueTypeStrategy;
-            yield return new ResolveByInstantiatingClassUsingDummyValuesAsConstructorArgumentsStrategy(this);
+
+            foreach (var strategy in ResolveByInstantiatingClassUsingDummyValuesAsConstructorArgumentsStrategy.GetStrategiesForAllConstructors(typeOfDummy, this))
+            {
+                yield return strategy;
+            }
         }
 
         private bool TryResolveDummyValueWithAllAvailableStrategies(DummyCreationSession session, Type typeOfDummy, out object result)
@@ -72,7 +76,7 @@ namespace FakeItEasy.Creation
                 return cachedStrategy.TryCreateDummyValue(session, typeOfDummy, out result);
             }
 
-            foreach (var strategy in this.GetAllResolveStrategies())
+            foreach (var strategy in this.GetAllResolveStrategies(typeOfDummy))
             {
                 if (strategy.TryCreateDummyValue(session, typeOfDummy, out result))
                 {
@@ -213,37 +217,50 @@ namespace FakeItEasy.Creation
 
         private class ResolveByInstantiatingClassUsingDummyValuesAsConstructorArgumentsStrategy : ResolveStrategy
         {
-            public ResolveByInstantiatingClassUsingDummyValuesAsConstructorArgumentsStrategy(DummyValueResolver resolver)
+            private readonly IEnumerable<Type> parameterTypes;
+
+            private ResolveByInstantiatingClassUsingDummyValuesAsConstructorArgumentsStrategy(
+                DummyValueResolver resolver,
+                IEnumerable<Type> parameterTypes)
             {
+                this.parameterTypes = parameterTypes;
                 this.Resolver = resolver;
             }
 
             private DummyValueResolver Resolver { get; }
 
-            [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Appropriate in try method.")]
-            public override bool TryCreateDummyValue(DummyCreationSession session, Type typeOfDummy, out object result)
+            public static IEnumerable<ResolveStrategy> GetStrategiesForAllConstructors(Type typeOfDummy,
+                DummyValueResolver resolver)
             {
-                result = default(object);
                 if (typeof(Delegate).IsAssignableFrom(typeOfDummy) || typeOfDummy.GetTypeInfo().IsAbstract)
                 {
-                    return false;
+                    yield break;
                 }
 
                 foreach (var constructor in GetConstructorsInOrder(typeOfDummy))
                 {
-                    var parameterTypes = constructor.GetParameters().Select(x => x.ParameterType);
-                    var resolvedArguments = this.ResolveAllTypes(session, parameterTypes);
+                    yield return new ResolveByInstantiatingClassUsingDummyValuesAsConstructorArgumentsStrategy(
+                        resolver,
+                        constructor.GetParameters().Select(x => x.ParameterType));
+                }
+            }
 
-                    if (resolvedArguments != null)
+            [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Appropriate in try method.")]
+            public override bool TryCreateDummyValue(DummyCreationSession session, Type typeOfDummy, out object result)
+            {
+                result = default(object);
+
+                var resolvedArguments = this.ResolveAllTypes(session, this.parameterTypes);
+
+                if (resolvedArguments != null)
+                {
+                    try
                     {
-                        try
-                        {
-                            result = Activator.CreateInstance(typeOfDummy, resolvedArguments.ToArray());
-                            return true;
-                        }
-                        catch
-                        {
-                        }
+                        result = Activator.CreateInstance(typeOfDummy, resolvedArguments.ToArray());
+                        return true;
+                    }
+                    catch
+                    {
                     }
                 }
 
