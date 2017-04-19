@@ -12,8 +12,12 @@ namespace FakeItEasy.Creation
 
     internal class DummyValueResolver : IDummyValueResolver
     {
-        private readonly ResolveStrategy[] strategies;
+        private readonly IFakeObjectCreator fakeObjectCreator;
         private readonly ConcurrentDictionary<Type, ResolveStrategy> strategyCache;
+        private readonly ResolveFromDummyFactoryStrategy resolveFromDummyFactoryStrategy;
+        private readonly ResolveByCreatingTaskStrategy resolveByCreatingTaskStrategy;
+        private readonly ResolveByCreatingLazyStrategy resolveByCreatingLazyStrategy;
+        private readonly ResolveByActivatingValueTypeStrategy resolveByActivatingValueTypeStrategy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DummyValueResolver"/> class.
@@ -23,15 +27,12 @@ namespace FakeItEasy.Creation
         public DummyValueResolver(DynamicDummyFactory dummyFactory, IFakeObjectCreator fakeObjectCreator)
         {
             this.strategyCache = new ConcurrentDictionary<Type, ResolveStrategy>();
-            this.strategies = new ResolveStrategy[]
-                {
-                    new ResolveFromDummyFactoryStrategy(dummyFactory),
-                    new ResolveByCreatingTaskStrategy(this),
-                    new ResolveByCreatingLazyStrategy(this),
-                    new ResolveByCreatingFakeStrategy(fakeObjectCreator, this),
-                    new ResolveByActivatingValueTypeStrategy(),
-                    new ResolveByInstantiatingClassUsingDummyValuesAsConstructorArgumentsStrategy(this)
-                };
+            this.fakeObjectCreator = fakeObjectCreator;
+
+            this. resolveFromDummyFactoryStrategy = new ResolveFromDummyFactoryStrategy(dummyFactory);
+            resolveByCreatingTaskStrategy = new ResolveByCreatingTaskStrategy(this);
+            resolveByCreatingLazyStrategy = new ResolveByCreatingLazyStrategy(this);
+            resolveByActivatingValueTypeStrategy = new ResolveByActivatingValueTypeStrategy();
         }
 
         public bool TryResolveDummyValue(DummyCreationSession session, Type typeOfDummy, out object result)
@@ -51,6 +52,16 @@ namespace FakeItEasy.Creation
             return false;
         }
 
+        private IEnumerable<ResolveStrategy> GetAllResolveStrategies()
+        {
+            yield return resolveFromDummyFactoryStrategy;
+            yield return resolveByCreatingTaskStrategy;
+            yield return resolveByCreatingLazyStrategy;
+            yield return new ResolveByCreatingFakeStrategy(this.fakeObjectCreator, this);
+            yield return resolveByActivatingValueTypeStrategy;
+            yield return new ResolveByInstantiatingClassUsingDummyValuesAsConstructorArgumentsStrategy(this);
+        }
+
         private bool TryResolveDummyValueWithAllAvailableStrategies(DummyCreationSession session, Type typeOfDummy, out object result)
         {
             result = default(object);
@@ -61,7 +72,7 @@ namespace FakeItEasy.Creation
                 return cachedStrategy.TryCreateDummyValue(session, typeOfDummy, out result);
             }
 
-            foreach (var strategy in this.strategies)
+            foreach (var strategy in this.GetAllResolveStrategies())
             {
                 if (strategy.TryCreateDummyValue(session, typeOfDummy, out result))
                 {
