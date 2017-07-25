@@ -32,3 +32,14 @@ deploy:
       skip_symbols: true
       on:
           appveyor_repo_tag: true
+
+    - provider: GitHub
+      description: ''
+      auth_token:
+          secure: UFMJJb2zmvW8qImtexiCMuiJyX/S1GZ2Hr5HwPJtzk3qZQxz5sc/WJ3hlTFs6o/d
+      artifact: .\artifacts\output\*.nupkg
+      draft: true
+      force_update: true
+      prerelease: false
+      on:
+         appveyor_repo_tag: true        # deploy on tag push only
