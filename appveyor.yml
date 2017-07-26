@@ -30,7 +30,7 @@ deploy:
       description: ''
       auth_token:
           secure: UFMJJb2zmvW8qImtexiCMuiJyX/S1GZ2Hr5HwPJtzk3qZQxz5sc/WJ3hlTFs6o/d
-      artifact: .\artifacts\output\*.nupkg
+      artifact: /.*\.nupkg/
       draft: true
       force_update: true
       prerelease: false
