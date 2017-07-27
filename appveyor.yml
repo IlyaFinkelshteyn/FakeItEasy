@@ -18,6 +18,8 @@ init:
         } else {
             $env:isPrerelease = "false"
         }
+        echo ("isPrerelease: " + $env:isPrerelease)
+        echo ("description: " + $env:releaseDescription)
     }
 
 environment:
