@@ -49,7 +49,7 @@ deploy:
     - provider: GitHub
       auth_token: $(GITHUB_TOKEN)
       artifact: /.*\.nupkg/
-      draft: false
+      draft: true
       force_update: true
       prerelease: $(isPrerelease)
       description: $(releaseDescription)
