@@ -4,15 +4,33 @@ image: Visual Studio 2017
 pull_requests:
   do_not_increment_build_number: true
 
+init:
+- ps: >-
+    if ($env:APPVEYOR_REPO_TAG_NAME) {
+        $headers = @{
+          "Authorization" = "Bearer $env:GITHUB_TOKEN"
+          "Content-type" = "application/json"
+        }
+        $releases = Invoke-RestMethod -Uri "https://api.github.com/repos/$env:APPVEYOR_REPO_NAME/releases" -Headers $headers  -Method GET
+        $env:releaseDescription = ($releases | Where-Object {$_.tag_name -eq "$env:APPVEYOR_REPO_TAG"}).body
+        if ($env:APPVEYOR_REPO_TAG_NAME -like "-") {
+            $env:isPrerelease = "true"
+        } else {
+            $env:isPrerelease = "false"
+        }
+    }
+
 environment:
     BUILD: $(APPVEYOR_BUILD_NUMBER)
     COVERITY_EMAIL:
         secure: 9iw6ajDvltEymr75DhlRbH8X+2olJ8mbWLPqyYMmleg=
     COVERITY_TOKEN:
         secure: S9XU2JhyUK9XstLG3CN2vB5M8ce8zYZp5VECx3kvx24=
+    GITHUB_TOKEN:
+        secure: 2nIBgxQYZTgGx99hpMX9QUA5J8IxOLD/8krdtdYdpu6uoXkIBxYg1zsemU+dasby
 
 build_script:
-- cmd: if defined APPVEYOR_SCHEDULED_BUILD (build.cmd coverity) else (build.cmd)
+- cmd: if defined APPVEYOR_SCHEDULED_BUILD (build.cmd coverity) else (build.cmd pack)
 
 on_failure:
   - ps: $root = (Resolve-Path artifacts); [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName failed-build }
@@ -27,11 +45,11 @@ artifacts:
 
 deploy:
     - provider: GitHub
-      auth_token:
-          secure: UFMJJb2zmvW8qImtexiCMuiJyX/S1GZ2Hr5HwPJtzk3qZQxz5sc/WJ3hlTFs6o/d
+      auth_token: $(GITHUB_TOKEN)
       artifact: /.*\.nupkg/
-      draft: true
+      draft: false
       force_update: true
-      prerelease: false
+      prerelease: $(isPrerelease)
+      description: $(releaseDescription)
       on:
-         appveyor_repo_tag: true        # deploy on tag push only
+         appveyor_repo_tag: true
