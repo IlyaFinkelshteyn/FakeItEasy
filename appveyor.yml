@@ -40,8 +40,6 @@ artifacts:
     - path: .\artifacts\*\*
 
 before_deploy:
-
-before_deploy:
 - ps: Write-host "releaseDescription:  $env:releaseDescription"
 
 deploy:
