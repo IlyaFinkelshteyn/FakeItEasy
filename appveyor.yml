@@ -39,6 +39,11 @@ test: off
 artifacts:
     - path: .\artifacts\*\*
 
+before_deploy:
+
+before_deploy:
+- ps: Write-host "releaseDescription:  $env:releaseDescription"
+
 deploy:
     - provider: GitHub
       auth_token: $(GITHUB_TOKEN)
