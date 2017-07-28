@@ -31,7 +31,9 @@ environment:
         secure: lFzX7i6KyahX1MfiZx9qgD3asWP+4jb9c1ple2DAabQVgYqXfNEqIBMrwcMLD3un
 
 build_script:
+- ps: write-host "releaseDescription  $env:releaseDescription" 
 - cmd: build.cmd pack
+- ps: write-host "releaseDescription  $env:releaseDescription" 
 
 nuget:
     disable_publish_on_pr: true
