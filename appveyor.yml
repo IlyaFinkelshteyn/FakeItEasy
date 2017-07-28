@@ -24,18 +24,11 @@ init:
 
 environment:
     BUILD: $(APPVEYOR_BUILD_NUMBER)
-    COVERITY_EMAIL:
-        secure: 9iw6ajDvltEymr75DhlRbH8X+2olJ8mbWLPqyYMmleg=
-    COVERITY_TOKEN:
-        secure: S9XU2JhyUK9XstLG3CN2vB5M8ce8zYZp5VECx3kvx24=
     GITHUB_TOKEN:
-        secure: 2nIBgxQYZTgGx99hpMX9QUA5J8IxOLD/8krdtdYdpu6uoXkIBxYg1zsemU+dasby
+        secure: 2zhgqV68EAQ0Q4OTZlb0SZz8n6MIusGZ/cId8LlsG7vFFRJbxZAwTPriwd1U0Tmm
 
 build_script:
-- cmd: if defined APPVEYOR_SCHEDULED_BUILD (build.cmd coverity) else (build.cmd pack)
-
-on_failure:
-  - ps: $root = (Resolve-Path artifacts); [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName failed-build }
+- cmd: build.cmd pack
 
 nuget:
     disable_publish_on_pr: true
