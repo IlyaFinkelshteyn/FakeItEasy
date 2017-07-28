@@ -38,13 +38,13 @@ test: off
 artifacts:
     - path: .\artifacts\*\*
 
-deploy:
-    - provider: GitHub
-      auth_token: $(GITHUB_TOKEN)
-      artifact: /.*\.nupkg/
-      draft: true
-      force_update: true
-      prerelease: $(isPrerelease)
-      description: $(releaseDescription)
-      on:
-         appveyor_repo_tag: true
+#deploy:
+#    - provider: GitHub
+#      auth_token: $(GITHUB_TOKEN)
+#      artifact: /.*\.nupkg/
+#      draft: true
+#      force_update: true
+#      prerelease: $(isPrerelease)
+#      description: $(releaseDescription)
+#      on:
+#         appveyor_repo_tag: true
