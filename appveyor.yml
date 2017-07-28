@@ -23,6 +23,7 @@ install:
         echo ("APPVEYOR_REPO_TAG_NAME: " + "$env:APPVEYOR_REPO_TAG_NAME")
         $env:releaseDescription > descr.txt
     }
+- ps: write-host "releaseDescription  $env:releaseDescription" 
 
 environment:
     BUILD: $(APPVEYOR_BUILD_NUMBER)
