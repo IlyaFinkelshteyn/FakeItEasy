@@ -40,7 +40,7 @@ artifacts:
     - path: .\artifacts\*\*
 
 before_deploy:
-- ps: Write-host "releaseDescription:  $env:releaseDescription"
+- ps: write-host "releaseDescription:  $env:releaseDescription" 
 
 deploy:
     - provider: GitHub
