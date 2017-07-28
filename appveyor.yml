@@ -25,7 +25,7 @@ init:
 environment:
     BUILD: $(APPVEYOR_BUILD_NUMBER)
     GITHUB_TOKEN:
-        secure: 2zhgqV68EAQ0Q4OTZlb0SZz8n6MIusGZ/cId8LlsG7vFFRJbxZAwTPriwd1U0Tmm
+        secure: lFzX7i6KyahX1MfiZx9qgD3asWP+4jb9c1ple2DAabQVgYqXfNEqIBMrwcMLD3un
 
 build_script:
 - cmd: build.cmd pack
