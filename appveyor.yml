@@ -23,6 +23,9 @@ init:
         echo ("APPVEYOR_REPO_TAG_NAME: " + "$env:APPVEYOR_REPO_TAG_NAME")
     }
 
+install:
+- ps: write-host "releaseDescription-install  $env:releaseDescription" 
+
 environment:
     BUILD: $(APPVEYOR_BUILD_NUMBER)
     GITHUB_TOKEN:
