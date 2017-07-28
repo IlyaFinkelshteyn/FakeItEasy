@@ -4,7 +4,7 @@ image: Visual Studio 2017
 pull_requests:
   do_not_increment_build_number: true
 
-install:
+before_deploy:
 - ps: >-
     if ($env:APPVEYOR_REPO_TAG_NAME) {
         $headers = @{
@@ -42,12 +42,6 @@ test: off
 
 artifacts:
     - path: .\artifacts\*\*
-
-before_deploy:
-- ps: write-host "releaseDescription  $env:releaseDescription" 
-- ps: type .\descr.txt
-- ps: $env:releaseDescription = Get-Content .\descr.txt
-- ps: write-host "releaseDescription  $env:releaseDescription" 
 
 deploy:
     - provider: GitHub
